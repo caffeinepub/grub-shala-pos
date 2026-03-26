@@ -45,6 +45,7 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'claimFirstAdmin' : ActorMethod<[], boolean>,
   'createMenuCategory' : ActorMethod<[string, string], MenuCategory>,
   'createMenuItem' : ActorMethod<[string, string, string, number, boolean], MenuItem>,
   'createOutlet' : ActorMethod<[string, boolean], Outlet>,

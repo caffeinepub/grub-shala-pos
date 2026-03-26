@@ -63,42 +63,44 @@ export default function CustomersTab() {
             <p className="text-sm">No customers found yet.</p>
           </div>
         ) : (
-          <Table data-ocid="customers.table">
-            <TableHeader>
-              <TableRow className="bg-secondary/50">
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  #
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Mobile Number
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Name
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {customers.map((customer, idx) => (
-                <TableRow
-                  key={customer.mobile}
-                  data-ocid={`customers.item.${idx + 1}`}
-                  className="hover:bg-secondary/30"
-                >
-                  <TableCell className="text-muted-foreground text-xs">
-                    {idx + 1}
-                  </TableCell>
-                  <TableCell className="font-semibold text-sm">
-                    {customer.mobile}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {customer.name || (
-                      <span className="text-muted-foreground italic">—</span>
-                    )}
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table data-ocid="customers.table">
+              <TableHeader>
+                <TableRow className="bg-secondary/50">
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    #
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Mobile Number
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Name
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {customers.map((customer, idx) => (
+                  <TableRow
+                    key={customer.mobile}
+                    data-ocid={`customers.item.${idx + 1}`}
+                    className="hover:bg-secondary/30"
+                  >
+                    <TableCell className="text-muted-foreground text-xs">
+                      {idx + 1}
+                    </TableCell>
+                    <TableCell className="font-semibold text-sm whitespace-nowrap">
+                      {customer.mobile}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {customer.name || (
+                        <span className="text-muted-foreground italic">—</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
     </div>

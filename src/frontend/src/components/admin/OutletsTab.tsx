@@ -23,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Loader2, Plus, Store, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -37,53 +37,32 @@ const SKELETON_ROWS = [1, 2, 3];
 
 export default function OutletsTab() {
   const [newName, setNewName] = useState("");
-  const [newActive, setNewActive] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editActive, setEditActive] = useState(true);
 
   const { data: outlets = [], isLoading } = useOutlets();
   const createOutlet = useCreateOutlet();
-  const updateOutlet = useUpdateOutlet();
   const deleteOutlet = useDeleteOutlet();
+  const updateOutlet = useUpdateOutlet();
 
   async function handleCreate() {
     if (!newName.trim()) {
-      toast.error("Enter outlet name");
+      toast.error("Please enter an outlet name");
       return;
     }
     try {
       await createOutlet.mutateAsync({
         name: newName.trim(),
-        active: newActive,
+        active: true,
       });
       setNewName("");
-      setNewActive(true);
       toast.success("Outlet created");
     } catch {
       toast.error("Failed to create outlet");
     }
   }
 
-  function startEdit(id: string, name: string, active: boolean) {
-    setEditingId(id);
-    setEditName(name);
-    setEditActive(active);
-  }
-
-  async function saveEdit(id: string) {
-    if (!editName.trim()) {
-      toast.error("Name required");
-      return;
-    }
+  async function handleToggleActive(id: string, name: string, active: boolean) {
     try {
-      await updateOutlet.mutateAsync({
-        id,
-        name: editName.trim(),
-        active: editActive,
-      });
-      setEditingId(null);
-      toast.success("Outlet updated");
+      await updateOutlet.mutateAsync({ id, name, active: !active });
     } catch {
       toast.error("Failed to update outlet");
     }
@@ -100,37 +79,31 @@ export default function OutletsTab() {
 
   return (
     <div data-ocid="outlets.section" className="space-y-4">
-      <h2 className="text-lg font-bold">Outlets</h2>
+      <div className="flex items-center gap-2">
+        <Store className="w-4 h-4 text-emerald-600" />
+        <h2 className="text-lg font-bold">Outlets</h2>
+      </div>
 
       <div className="bg-card border border-border rounded-xl p-4 shadow-xs">
         <p className="text-sm font-semibold mb-3">Add New Outlet</p>
-        <div className="flex items-end gap-3">
-          <div className="flex-1">
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+          <div className="w-full sm:flex-1">
             <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
-              Outlet Name
+              Outlet Name <span className="text-red-500">*</span>
             </Label>
             <Input
               data-ocid="outlets.name.input"
-              placeholder="e.g. Grub Shala - Sector 73"
+              placeholder="e.g. Grub Shala - Sector 10"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
           </div>
-          <div className="flex items-center gap-2 pb-1">
-            <Switch
-              data-ocid="outlets.active.switch"
-              checked={newActive}
-              onCheckedChange={setNewActive}
-              className="data-[state=checked]:bg-amber-600"
-            />
-            <Label className="text-sm">Active</Label>
-          </div>
           <Button
             data-ocid="outlets.add.primary_button"
             onClick={handleCreate}
             disabled={createOutlet.isPending}
-            className="bg-amber-600 hover:bg-amber-700 text-white"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white w-full sm:w-auto"
           >
             {createOutlet.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -146,7 +119,7 @@ export default function OutletsTab() {
         {isLoading ? (
           <div data-ocid="outlets.loading_state" className="p-6 space-y-3">
             {SKELETON_ROWS.map((n) => (
-              <Skeleton key={n} className="h-10 w-full" />
+              <Skeleton key={n} className="h-12 w-full" />
             ))}
           </div>
         ) : outlets.length === 0 ? (
@@ -154,107 +127,62 @@ export default function OutletsTab() {
             data-ocid="outlets.empty_state"
             className="p-12 text-center text-muted-foreground"
           >
+            <Store className="w-10 h-10 mx-auto mb-2 opacity-30" />
             <p className="text-sm">No outlets found. Add one above.</p>
           </div>
         ) : (
-          <Table data-ocid="outlets.table">
-            <TableHeader>
-              <TableRow className="bg-secondary/50">
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Name
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Status
-                </TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {outlets.map((outlet, idx) => (
-                <TableRow
-                  key={outlet.id}
-                  data-ocid={`outlets.item.${idx + 1}`}
-                  className="hover:bg-secondary/30"
-                >
-                  <TableCell>
-                    {editingId === outlet.id ? (
-                      <Input
-                        data-ocid="outlets.edit.input"
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="h-8 text-sm w-64"
-                        autoFocus
-                      />
-                    ) : (
-                      <span className="text-sm font-medium">{outlet.name}</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {editingId === outlet.id ? (
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          data-ocid="outlets.edit.active.switch"
-                          checked={editActive}
-                          onCheckedChange={setEditActive}
-                          className="data-[state=checked]:bg-amber-600"
-                        />
-                        <span className="text-xs">
-                          {editActive ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                    ) : (
+          <div className="overflow-x-auto">
+            <Table data-ocid="outlets.table">
+              <TableHeader>
+                <TableRow className="bg-secondary/50">
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Name
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Active
+                  </TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {outlets.map((outlet, idx) => (
+                  <TableRow
+                    key={outlet.id}
+                    data-ocid={`outlets.item.${idx + 1}`}
+                    className="hover:bg-secondary/30"
+                  >
+                    <TableCell className="text-sm font-semibold whitespace-nowrap">
+                      {outlet.name}
+                    </TableCell>
+                    <TableCell>
                       <Badge
                         className={
                           outlet.active
-                            ? "bg-green-100 text-green-700 border-green-200"
-                            : "bg-secondary text-muted-foreground"
+                            ? "bg-emerald-100 text-emerald-700 border-emerald-200 text-xs"
+                            : "bg-secondary text-muted-foreground text-xs"
                         }
                       >
                         {outlet.active ? "Active" : "Inactive"}
                       </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1 justify-end">
-                      {editingId === outlet.id ? (
-                        <>
-                          <Button
-                            data-ocid={`outlets.save.button.${idx + 1}`}
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-green-600 hover:bg-green-50"
-                            onClick={() => saveEdit(outlet.id)}
-                            disabled={updateOutlet.isPending}
-                          >
-                            {updateOutlet.isPending ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Check className="w-3.5 h-3.5" />
-                            )}
-                          </Button>
-                          <Button
-                            data-ocid={`outlets.cancel.button.${idx + 1}`}
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => setEditingId(null)}
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </Button>
-                        </>
-                      ) : (
-                        <Button
-                          data-ocid={`outlets.edit.button.${idx + 1}`}
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                          onClick={() =>
-                            startEdit(outlet.id, outlet.name, outlet.active)
-                          }
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Button>
-                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Switch
+                        data-ocid={`outlets.active.switch.${idx + 1}`}
+                        checked={outlet.active}
+                        onCheckedChange={() =>
+                          handleToggleActive(
+                            outlet.id,
+                            outlet.name,
+                            outlet.active,
+                          )
+                        }
+                        className="data-[state=checked]:bg-emerald-600"
+                      />
+                    </TableCell>
+                    <TableCell>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
@@ -270,7 +198,8 @@ export default function OutletsTab() {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Delete Outlet?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Deleting "{outlet.name}" cannot be undone.
+                              "{outlet.name}" will be permanently deleted. This
+                              cannot be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -283,17 +212,21 @@ export default function OutletsTab() {
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               disabled={deleteOutlet.isPending}
                             >
-                              Delete
+                              {deleteOutlet.isPending ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                "Delete"
+                              )}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
     </div>

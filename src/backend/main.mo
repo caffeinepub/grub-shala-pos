@@ -113,6 +113,19 @@ actor {
 
   seedDefaultOutlets();
 
+  // First-run admin claim: allows first logged-in user to become admin when no admin exists yet
+  public shared ({ caller }) func claimFirstAdmin() : async Bool {
+    if (caller.isAnonymous()) {
+      Runtime.trap("Must be logged in to claim admin");
+    };
+    if (accessControlState.adminAssigned) {
+      return false; // Admin already exists
+    };
+    accessControlState.userRoles.add(caller, #admin);
+    accessControlState.adminAssigned := true;
+    true;
+  };
+
   // User Profile Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -136,10 +149,7 @@ actor {
   };
 
   // Outlet Management
-  public query ({ caller }) func getOutlets() : async [Outlet] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized");
-    };
+  public query func getOutlets() : async [Outlet] {
     outlets.values().toArray();
   };
 
@@ -185,10 +195,7 @@ actor {
   };
 
   // Menu Category Management
-  public query ({ caller }) func getMenuCategories(outletId : ?Text) : async [MenuCategory] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized");
-    };
+  public query func getMenuCategories(outletId : ?Text) : async [MenuCategory] {
     let all = menuCategories.values().toArray();
     switch (outletId) {
       case (null) { all };
@@ -231,10 +238,7 @@ actor {
   };
 
   // Menu Item Management
-  public query ({ caller }) func getMenuItems(outletId : ?Text) : async [MenuItem] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized");
-    };
+  public query func getMenuItems(outletId : ?Text) : async [MenuItem] {
     let allItems = menuItems.values().toArray();
     switch (outletId) {
       case (null) { allItems };
@@ -297,7 +301,7 @@ actor {
   };
 
   // Order Management
-  public shared ({ caller }) func placeOrder(
+  public shared func placeOrder(
     outletId : Text,
     customerMobile : Text,
     customerName : Text,
@@ -309,9 +313,6 @@ actor {
     status : Text,
     createdAt : Int
   ) : async Order {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized");
-    };
     customers.add(customerMobile, { mobile = customerMobile; name = customerName });
     let id = "order_" # nextOrderId.toText();
     nextOrderId += 1;

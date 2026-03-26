@@ -275,3 +275,17 @@ export function useIsAdmin() {
     enabled: !!actor && !isFetching,
   });
 }
+
+export function useClaimFirstAdmin() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error("Not connected");
+      return actor.claimFirstAdmin();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["isAdmin"] });
+    },
+  });
+}

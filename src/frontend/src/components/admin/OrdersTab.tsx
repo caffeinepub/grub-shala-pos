@@ -123,9 +123,9 @@ export default function OrdersTab() {
 
   return (
     <div data-ocid="orders.section" className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-bold">Orders</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             data-ocid="orders.refresh.button"
             variant="outline"
@@ -148,63 +148,68 @@ export default function OrdersTab() {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-xl p-4 flex flex-wrap gap-4 items-end shadow-xs">
-        <div>
-          <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
-            From Date
-          </Label>
-          <Input
-            data-ocid="orders.start_date.input"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="w-40"
-          />
-        </div>
-        <div>
-          <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
-            To Date
-          </Label>
-          <Input
-            data-ocid="orders.end_date.input"
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="w-40"
-          />
-        </div>
-        <div>
-          <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
-            Outlet
-          </Label>
-          <Select
-            value={filterOutletId ?? "all"}
-            onValueChange={(v) => setFilterOutletId(v === "all" ? null : v)}
+      <div className="bg-card border border-border rounded-xl p-4 shadow-xs">
+        <div className="flex flex-col md:flex-row flex-wrap gap-4 items-start md:items-end">
+          <div>
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
+              From Date
+            </Label>
+            <Input
+              data-ocid="orders.start_date.input"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full md:w-40"
+            />
+          </div>
+          <div>
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
+              To Date
+            </Label>
+            <Input
+              data-ocid="orders.end_date.input"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full md:w-40"
+            />
+          </div>
+          <div>
+            <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
+              Outlet
+            </Label>
+            <Select
+              value={filterOutletId ?? "all"}
+              onValueChange={(v) => setFilterOutletId(v === "all" ? null : v)}
+            >
+              <SelectTrigger
+                data-ocid="orders.outlet.select"
+                className="w-full md:w-48"
+              >
+                <SelectValue placeholder="All Outlets" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Outlets</SelectItem>
+                {outlets.map((o) => (
+                  <SelectItem key={o.id} value={o.id}>
+                    {o.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setStartDate("");
+              setEndDate("");
+              setFilterOutletId(null);
+            }}
           >
-            <SelectTrigger data-ocid="orders.outlet.select" className="w-48">
-              <SelectValue placeholder="All Outlets" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Outlets</SelectItem>
-              {outlets.map((o) => (
-                <SelectItem key={o.id} value={o.id}>
-                  {o.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            Clear Filters
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setStartDate("");
-            setEndDate("");
-            setFilterOutletId(null);
-          }}
-        >
-          Clear Filters
-        </Button>
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-xs overflow-hidden">
@@ -222,127 +227,132 @@ export default function OrdersTab() {
             <p className="text-sm">No orders found for the selected filters.</p>
           </div>
         ) : (
-          <Table data-ocid="orders.table">
-            <TableHeader>
-              <TableRow className="bg-secondary/50">
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Order ID
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Outlet
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Customer Name
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Mobile
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Items
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Subtotal
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Tax
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Total
-                </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                  Date
-                </TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order, idx) => (
-                <TableRow
-                  key={order.id}
-                  data-ocid={`orders.item.${idx + 1}`}
-                  className="hover:bg-secondary/30"
-                >
-                  <TableCell className="font-mono text-xs text-muted-foreground">
-                    {order.id.slice(0, 8)}...
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {outletMap[order.outletId] ?? order.outletId}
-                  </TableCell>
-                  <TableCell className="text-sm font-medium">
-                    {customerMap[order.customerMobile]?.name ?? "—"}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {order.customerMobile}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className="text-xs">
-                      {order.items.length} items
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    ₹{order.subtotal.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {order.taxApplied ? (
-                      <span className="text-amber-700">
-                        ₹{order.taxAmount.toFixed(2)}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm font-bold text-amber-700">
-                    ₹{order.total.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {new Date(Number(order.createdAt)).toLocaleDateString(
-                      "en-IN",
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          data-ocid={`orders.delete.button.${idx + 1}`}
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent data-ocid="orders.delete.dialog">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Order?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. The order will be
-                            permanently deleted.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel data-ocid="orders.delete.cancel_button">
-                            Cancel
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            data-ocid="orders.delete.confirm_button"
-                            onClick={() => handleDelete(order.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            disabled={deleteOrder.isPending}
-                          >
-                            {deleteOrder.isPending ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              "Delete"
-                            )}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table data-ocid="orders.table">
+              <TableHeader>
+                <TableRow className="bg-secondary/50">
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Order ID
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Outlet
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Customer Name
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Mobile
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Items
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Subtotal
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Tax
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Total
+                  </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Date
+                  </TableHead>
+                  <TableHead />
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {orders.map((order, idx) => (
+                  <TableRow
+                    key={order.id}
+                    data-ocid={`orders.item.${idx + 1}`}
+                    className="hover:bg-secondary/30"
+                  >
+                    <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                      {order.id.slice(0, 8)}...
+                    </TableCell>
+                    <TableCell className="text-sm whitespace-nowrap">
+                      {outletMap[order.outletId] ?? order.outletId}
+                    </TableCell>
+                    <TableCell className="text-sm font-medium whitespace-nowrap">
+                      {customerMap[order.customerMobile]?.name ?? "—"}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                      {order.customerMobile}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="secondary"
+                        className="text-xs whitespace-nowrap"
+                      >
+                        {order.items.length} items
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm whitespace-nowrap">
+                      ₹{order.subtotal.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-sm whitespace-nowrap">
+                      {order.taxApplied ? (
+                        <span className="text-emerald-700">
+                          ₹{order.taxAmount.toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm font-bold text-emerald-700 whitespace-nowrap">
+                      ₹{order.total.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(Number(order.createdAt)).toLocaleDateString(
+                        "en-IN",
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            data-ocid={`orders.delete.button.${idx + 1}`}
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent data-ocid="orders.delete.dialog">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Order?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. The order will be
+                              permanently deleted.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel data-ocid="orders.delete.cancel_button">
+                              Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              data-ocid="orders.delete.confirm_button"
+                              onClick={() => handleDelete(order.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              disabled={deleteOrder.isPending}
+                            >
+                              {deleteOrder.isPending ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                "Delete"
+                              )}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
     </div>

@@ -80,7 +80,6 @@ export default function MenuTab() {
     ? allCategories.filter((c) => c.outletId === filterCatOutletId)
     : allCategories;
 
-  // Categories available for the selected outlet in the item form
   const itemFormCategories = newOutletId
     ? allCategories.filter((c) => c.outletId === newOutletId)
     : [];
@@ -187,19 +186,19 @@ export default function MenuTab() {
       {/* ---- CATEGORIES SECTION ---- */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Tag className="w-4 h-4 text-amber-600" />
+          <Tag className="w-4 h-4 text-emerald-600" />
           <h2 className="text-lg font-bold">Menu Categories</h2>
         </div>
 
         <div className="bg-card border border-border rounded-xl p-4 shadow-xs">
           <p className="text-sm font-semibold mb-3">Add New Category</p>
-          <div className="flex flex-wrap gap-3 items-end">
-            <div className="min-w-[180px]">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 items-start sm:items-end">
+            <div className="w-full sm:min-w-[180px] sm:w-auto">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
                 Outlet
               </Label>
               <Select value={catOutletId} onValueChange={setCatOutletId}>
-                <SelectTrigger data-ocid="cat.outlet.select">
+                <SelectTrigger data-ocid="cat.outlet.select" className="w-full">
                   <SelectValue placeholder="Select outlet" />
                 </SelectTrigger>
                 <SelectContent>
@@ -211,7 +210,7 @@ export default function MenuTab() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex-1 min-w-[200px]">
+            <div className="flex-1 w-full sm:min-w-[200px]">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
                 Category Name
               </Label>
@@ -227,7 +226,7 @@ export default function MenuTab() {
               data-ocid="cat.add.button"
               onClick={handleCreateCategory}
               disabled={createCategory.isPending}
-              className="bg-amber-600 hover:bg-amber-700 text-white"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white w-full sm:w-auto"
             >
               {createCategory.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -277,73 +276,75 @@ export default function MenuTab() {
               <p className="text-sm">No categories found. Add one above.</p>
             </div>
           ) : (
-            <Table data-ocid="cat.table">
-              <TableHeader>
-                <TableRow className="bg-secondary/50">
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                    Category Name
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                    Outlet
-                  </TableHead>
-                  <TableHead />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCategories.map((cat, idx) => (
-                  <TableRow
-                    key={cat.id}
-                    data-ocid={`cat.item.${idx + 1}`}
-                    className="hover:bg-secondary/30"
-                  >
-                    <TableCell className="text-sm font-medium">
-                      <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">
-                        {cat.name}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {outletMap[cat.outletId] ?? cat.outletId}
-                    </TableCell>
-                    <TableCell>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            data-ocid={`cat.delete.button.${idx + 1}`}
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Delete Category?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              "{cat.name}" will be permanently deleted. Existing
-                              menu items using this category will keep their
-                              category label.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteCategory(cat.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              disabled={deleteCategory.isPending}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table data-ocid="cat.table">
+                <TableHeader>
+                  <TableRow className="bg-secondary/50">
+                    <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                      Category Name
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                      Outlet
+                    </TableHead>
+                    <TableHead />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredCategories.map((cat, idx) => (
+                    <TableRow
+                      key={cat.id}
+                      data-ocid={`cat.item.${idx + 1}`}
+                      className="hover:bg-secondary/30"
+                    >
+                      <TableCell className="text-sm font-medium">
+                        <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">
+                          {cat.name}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                        {outletMap[cat.outletId] ?? cat.outletId}
+                      </TableCell>
+                      <TableCell>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              data-ocid={`cat.delete.button.${idx + 1}`}
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Delete Category?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                "{cat.name}" will be permanently deleted.
+                                Existing menu items using this category will
+                                keep their category label.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteCategory(cat.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                disabled={deleteCategory.isPending}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </div>
@@ -353,13 +354,13 @@ export default function MenuTab() {
       {/* ---- MENU ITEMS SECTION ---- */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <UtensilsCrossed className="w-4 h-4 text-amber-600" />
+          <UtensilsCrossed className="w-4 h-4 text-emerald-600" />
           <h2 className="text-lg font-bold">Menu Items</h2>
         </div>
 
         <div className="bg-card border border-border rounded-xl p-4 shadow-xs">
           <p className="text-sm font-semibold mb-3">Add New Menu Item</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <div>
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5 block">
                 Outlet
@@ -442,7 +443,7 @@ export default function MenuTab() {
                 data-ocid="menu.available.switch"
                 checked={newAvailable}
                 onCheckedChange={setNewAvailable}
-                className="data-[state=checked]:bg-amber-600"
+                className="data-[state=checked]:bg-emerald-600"
               />
               <Label className="text-sm">Available</Label>
             </div>
@@ -451,7 +452,7 @@ export default function MenuTab() {
                 data-ocid="menu.add.primary_button"
                 onClick={handleCreate}
                 disabled={createMenuItem.isPending}
-                className="bg-amber-600 hover:bg-amber-700 text-white w-full"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white w-full"
               >
                 {createMenuItem.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -503,106 +504,108 @@ export default function MenuTab() {
               <p className="text-sm">No menu items found. Add one above.</p>
             </div>
           ) : (
-            <Table data-ocid="menu.table">
-              <TableHeader>
-                <TableRow className="bg-secondary/50">
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                    Name
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                    Outlet
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                    Category
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                    Price
-                  </TableHead>
-                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
-                    Available
-                  </TableHead>
-                  <TableHead />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {menuItems.map((item, idx) => (
-                  <TableRow
-                    key={item.id}
-                    data-ocid={`menu.item.${idx + 1}`}
-                    className="hover:bg-secondary/30"
-                  >
-                    <TableCell className="text-sm font-medium">
-                      {item.name}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {outletMap[item.outletId] ?? item.outletId}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">
-                        {item.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm font-bold text-amber-700">
-                      ₹{item.price.toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      <Switch
-                        data-ocid={`menu.available.switch.${idx + 1}`}
-                        checked={item.available}
-                        onCheckedChange={() =>
-                          handleToggleAvailable(
-                            item.id,
-                            item.outletId,
-                            item.name,
-                            item.category,
-                            item.price,
-                            item.available,
-                          )
-                        }
-                        className="data-[state=checked]:bg-amber-600"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            data-ocid={`menu.delete.button.${idx + 1}`}
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent data-ocid="menu.delete.dialog">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Delete Menu Item?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              "{item.name}" will be permanently deleted.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel data-ocid="menu.delete.cancel_button">
-                              Cancel
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              data-ocid="menu.delete.confirm_button"
-                              onClick={() => handleDelete(item.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              disabled={deleteMenuItem.isPending}
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table data-ocid="menu.table">
+                <TableHeader>
+                  <TableRow className="bg-secondary/50">
+                    <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                      Name
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                      Outlet
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                      Category
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                      Price
+                    </TableHead>
+                    <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                      Available
+                    </TableHead>
+                    <TableHead />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {menuItems.map((item, idx) => (
+                    <TableRow
+                      key={item.id}
+                      data-ocid={`menu.item.${idx + 1}`}
+                      className="hover:bg-secondary/30"
+                    >
+                      <TableCell className="text-sm font-medium whitespace-nowrap">
+                        {item.name}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
+                        {outletMap[item.outletId] ?? item.outletId}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs whitespace-nowrap">
+                          {item.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm font-bold text-emerald-700 whitespace-nowrap">
+                        ₹{item.price.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Switch
+                          data-ocid={`menu.available.switch.${idx + 1}`}
+                          checked={item.available}
+                          onCheckedChange={() =>
+                            handleToggleAvailable(
+                              item.id,
+                              item.outletId,
+                              item.name,
+                              item.category,
+                              item.price,
+                              item.available,
+                            )
+                          }
+                          className="data-[state=checked]:bg-emerald-600"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              data-ocid={`menu.delete.button.${idx + 1}`}
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent data-ocid="menu.delete.dialog">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Delete Menu Item?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                "{item.name}" will be permanently deleted.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel data-ocid="menu.delete.cancel_button">
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                data-ocid="menu.delete.confirm_button"
+                                onClick={() => handleDelete(item.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                disabled={deleteMenuItem.isPending}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </div>

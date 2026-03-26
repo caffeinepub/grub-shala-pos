@@ -94,6 +94,11 @@ export interface Outlet {
     active: boolean;
     name: string;
 }
+export interface MenuCategory {
+    id: string;
+    outletId: string;
+    name: string;
+}
 export interface MenuItem {
     id: string;
     name: string;
@@ -136,8 +141,10 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    createMenuCategory(outletId: string, name: string): Promise<MenuCategory>;
     createMenuItem(outletId: string, name: string, category: string, price: number, available: boolean): Promise<MenuItem>;
     createOutlet(name: string, active: boolean): Promise<Outlet>;
+    deleteMenuCategory(id: string): Promise<boolean>;
     deleteMenuItem(id: string): Promise<boolean>;
     deleteOrder(id: string): Promise<boolean>;
     deleteOutlet(id: string): Promise<boolean>;
@@ -145,6 +152,7 @@ export interface backendInterface {
     getCallerUserRole(): Promise<UserRole>;
     getCustomer(mobile: string): Promise<Customer | null>;
     getCustomers(): Promise<Array<Customer>>;
+    getMenuCategories(outletId: string | null): Promise<Array<MenuCategory>>;
     getMenuItem(id: string): Promise<MenuItem | null>;
     getMenuItems(outletId: string | null): Promise<Array<MenuItem>>;
     getOrder(id: string): Promise<Order | null>;
@@ -155,10 +163,11 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     placeOrder(outletId: string, customerMobile: string, customerName: string, items: Array<OrderItem>, subtotal: number, taxApplied: boolean, taxAmount: number, total: number, status: string, createdAt: bigint): Promise<Order>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateMenuCategory(id: string, outletId: string, name: string): Promise<MenuCategory | null>;
     updateMenuItem(id: string, outletId: string, name: string, category: string, price: number, available: boolean): Promise<MenuItem | null>;
     updateOutlet(id: string, name: string, active: boolean): Promise<Outlet | null>;
 }
-import type { Customer as _Customer, MenuItem as _MenuItem, Order as _Order, Outlet as _Outlet, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { Customer as _Customer, MenuCategory as _MenuCategory, MenuItem as _MenuItem, Order as _Order, Outlet as _Outlet, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -189,6 +198,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async createMenuCategory(arg0: string, arg1: string): Promise<MenuCategory> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createMenuCategory(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createMenuCategory(arg0, arg1);
+            return result;
+        }
+    }
     async createMenuItem(arg0: string, arg1: string, arg2: string, arg3: number, arg4: boolean): Promise<MenuItem> {
         if (this.processError) {
             try {
@@ -214,6 +237,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.createOutlet(arg0, arg1);
+            return result;
+        }
+    }
+    async deleteMenuCategory(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteMenuCategory(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteMenuCategory(arg0);
             return result;
         }
     }
@@ -312,6 +349,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getCustomers();
+            return result;
+        }
+    }
+    async getMenuCategories(arg0: string | null): Promise<Array<MenuCategory>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMenuCategories(to_candid_opt_n8(this._uploadFile, this._downloadFile, arg0));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMenuCategories(to_candid_opt_n8(this._uploadFile, this._downloadFile, arg0));
             return result;
         }
     }
@@ -455,6 +506,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async updateMenuCategory(arg0: string, arg1: string, arg2: string): Promise<MenuCategory | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateMenuCategory(arg0, arg1, arg2);
+                return from_candid_opt_menucat(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateMenuCategory(arg0, arg1, arg2);
+            return from_candid_opt_menucat(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async updateMenuItem(arg0: string, arg1: string, arg2: string, arg3: string, arg4: number, arg5: boolean): Promise<MenuItem | null> {
         if (this.processError) {
             try {
@@ -500,6 +565,9 @@ function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Ar
     return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Order]): Order | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_menucat(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_MenuCategory]): MenuCategory | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_variant_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {

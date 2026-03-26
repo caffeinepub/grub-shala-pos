@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Customer, MenuItem, Order, OrderItem, Outlet } from "../backend";
+import type {
+  Customer,
+  MenuCategory,
+  MenuItem,
+  Order,
+  OrderItem,
+  Outlet,
+} from "../backend";
 import { useActor } from "./useActor";
 
 export function useOutlets() {
@@ -9,6 +16,18 @@ export function useOutlets() {
     queryFn: async () => {
       if (!actor) return [];
       return actor.getOutlets();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useMenuCategories(outletId: string | null) {
+  const { actor, isFetching } = useActor();
+  return useQuery<MenuCategory[]>({
+    queryKey: ["menuCategories", outletId],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getMenuCategories(outletId);
     },
     enabled: !!actor && !isFetching,
   });
@@ -145,6 +164,34 @@ export function useDeleteOutlet() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["outlets"] });
+    },
+  });
+}
+
+export function useCreateMenuCategory() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: { outletId: string; name: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.createMenuCategory(params.outletId, params.name);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["menuCategories"] });
+    },
+  });
+}
+
+export function useDeleteMenuCategory() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.deleteMenuCategory(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["menuCategories"] });
     },
   });
 }

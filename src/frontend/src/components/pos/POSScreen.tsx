@@ -181,18 +181,12 @@ export default function POSScreen({ onGoAdmin }: Props) {
   return (
     <div className="flex h-screen overflow-hidden">
       <aside className="w-56 bg-charcoal flex flex-col flex-shrink-0">
-        <div className="px-5 py-5 border-b border-charcoal-light">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
-              <ChefHat className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm leading-tight">
-                Grub Shala
-              </p>
-              <p className="text-white/50 text-[10px]">POS System</p>
-            </div>
-          </div>
+        <div className="px-5 py-4 border-b border-charcoal-light">
+          <img
+            src="/assets/uploads/grub_logo_white.jpg-019d2879-724e-76fe-b488-5ce5d0569f40-1.jpeg"
+            alt="Grub Shala"
+            className="w-36 h-12 object-contain"
+          />
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
           <p className="text-white/40 text-[10px] font-semibold uppercase tracking-widest px-2 mb-3">

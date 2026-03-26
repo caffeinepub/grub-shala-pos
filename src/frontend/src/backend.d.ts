@@ -12,6 +12,11 @@ export interface Outlet {
     active: boolean;
     name: string;
 }
+export interface MenuCategory {
+    id: string;
+    outletId: string;
+    name: string;
+}
 export interface MenuItem {
     id: string;
     name: string;
@@ -53,8 +58,10 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    createMenuCategory(outletId: string, name: string): Promise<MenuCategory>;
     createMenuItem(outletId: string, name: string, category: string, price: number, available: boolean): Promise<MenuItem>;
     createOutlet(name: string, active: boolean): Promise<Outlet>;
+    deleteMenuCategory(id: string): Promise<boolean>;
     deleteMenuItem(id: string): Promise<boolean>;
     deleteOrder(id: string): Promise<boolean>;
     deleteOutlet(id: string): Promise<boolean>;
@@ -62,6 +69,7 @@ export interface backendInterface {
     getCallerUserRole(): Promise<UserRole>;
     getCustomer(mobile: string): Promise<Customer | null>;
     getCustomers(): Promise<Array<Customer>>;
+    getMenuCategories(outletId: string | null): Promise<Array<MenuCategory>>;
     getMenuItem(id: string): Promise<MenuItem | null>;
     getMenuItems(outletId: string | null): Promise<Array<MenuItem>>;
     getOrder(id: string): Promise<Order | null>;
@@ -72,6 +80,7 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     placeOrder(outletId: string, customerMobile: string, customerName: string, items: Array<OrderItem>, subtotal: number, taxApplied: boolean, taxAmount: number, total: number, status: string, createdAt: bigint): Promise<Order>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateMenuCategory(id: string, outletId: string, name: string): Promise<MenuCategory | null>;
     updateMenuItem(id: string, outletId: string, name: string, category: string, price: number, available: boolean): Promise<MenuItem | null>;
     updateOutlet(id: string, name: string, active: boolean): Promise<Outlet | null>;
 }

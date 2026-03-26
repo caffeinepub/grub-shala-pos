@@ -374,4 +374,13 @@ actor {
     };
     customers.get(mobile);
   };
+
+  public shared ({ caller }) func deleteCustomer(mobile : Text) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized");
+    };
+    let oldSize = customers.size();
+    customers.remove(mobile);
+    customers.size() < oldSize;
+  };
 };

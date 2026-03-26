@@ -49,6 +49,7 @@ export interface _SERVICE {
   'createMenuCategory' : ActorMethod<[string, string], MenuCategory>,
   'createMenuItem' : ActorMethod<[string, string, string, number, boolean], MenuItem>,
   'createOutlet' : ActorMethod<[string, boolean], Outlet>,
+  'deleteCustomer' : ActorMethod<[string], boolean>,
   'deleteMenuCategory' : ActorMethod<[string], boolean>,
   'deleteMenuItem' : ActorMethod<[string], boolean>,
   'deleteOrder' : ActorMethod<[string], boolean>,

@@ -1,3 +1,14 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -8,8 +19,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Download, Trash2 } from "lucide-react";
+import { useState } from "react";
 import type { Customer } from "../../backend";
+import { useActor } from "../../hooks/useActor";
 import { useCustomers } from "../../hooks/useQueries";
 
 const SKELETON_ROWS = [1, 2, 3, 4, 5];
@@ -31,6 +45,21 @@ function downloadCSV(customers: Customer[]) {
 
 export default function CustomersTab() {
   const { data: customers = [], isLoading } = useCustomers();
+  const { actor: backend } = useActor();
+  const queryClient = useQueryClient();
+  const [deletingMobile, setDeletingMobile] = useState<string | null>(null);
+
+  async function handleDelete(mobile: string) {
+    if (!backend) return;
+    setDeletingMobile(mobile);
+    try {
+      // deleteCustomer exists on the canister but may not be in the typed wrapper
+      await (backend as any).deleteCustomer(mobile);
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+    } finally {
+      setDeletingMobile(null);
+    }
+  }
 
   return (
     <div data-ocid="customers.section" className="space-y-4">
@@ -76,6 +105,9 @@ export default function CustomersTab() {
                   <TableHead className="text-xs font-semibold uppercase tracking-wide">
                     Name
                   </TableHead>
+                  <TableHead className="text-xs font-semibold uppercase tracking-wide">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -95,6 +127,44 @@ export default function CustomersTab() {
                       {customer.name || (
                         <span className="text-muted-foreground italic">—</span>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            data-ocid={`customers.delete_button.${idx + 1}`}
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            disabled={deletingMobile === customer.mobile}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent data-ocid="customers.dialog">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Delete {customer.name || customer.mobile}?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. The customer and all
+                              associated data will be permanently removed.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel data-ocid="customers.cancel_button">
+                              Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              data-ocid="customers.confirm_button"
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => handleDelete(customer.mobile)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))}

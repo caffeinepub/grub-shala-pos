@@ -61,6 +61,7 @@ export interface backendInterface {
     createMenuCategory(outletId: string, name: string): Promise<MenuCategory>;
     createMenuItem(outletId: string, name: string, category: string, price: number, available: boolean): Promise<MenuItem>;
     createOutlet(name: string, active: boolean): Promise<Outlet>;
+    deleteCustomer(mobile: string): Promise<boolean>;
     deleteMenuCategory(id: string): Promise<boolean>;
     deleteMenuItem(id: string): Promise<boolean>;
     deleteOrder(id: string): Promise<boolean>;

@@ -1,22 +1,24 @@
 # Grub Shala POS
 
 ## Current State
-Customers are stored in the backend keyed by mobile number. The Customers tab in the admin panel displays a table with mobile and name, plus a CSV download. There is no way to delete a customer.
+POSScreen.tsx handles order placement. On success, shows a 3-second success animation then resets. No print functionality exists.
 
 ## Requested Changes (Diff)
 
 ### Add
-- `deleteCustomer(mobile: Text)` backend function (admin-only) that removes a customer by mobile
-- Delete button per customer row in CustomersTab.tsx with confirmation before deletion
+- `PrintReceiptModal` component: shows receipt preview with outlet name, customer name/mobile, order items, subtotal, tax, total, and timestamp
+- Print via browser `window.print()` with receipt CSS (works for USB/network thermal printers and regular printers)
+- Print via Web Bluetooth API with ESC/POS commands for Bluetooth thermal printers (58mm/80mm)
+- After successful order placement, show receipt modal with both print options
+- A `usePrintReceipt` hook that encapsulates both print strategies
 
 ### Modify
-- `backend.d.ts` — add `deleteCustomer(mobile: string): Promise<boolean>`
-- `CustomersTab.tsx` — add Actions column with trash/delete button per row
+- `POSScreen.tsx`: capture last placed order data, show PrintReceiptModal after success
+- `handlePlaceOrder`: store order receipt data on success, open modal
 
 ### Remove
-Nothing removed.
+- Nothing removed
 
 ## Implementation Plan
-1. Add `deleteCustomer` to main.mo (admin-only)
-2. Add `deleteCustomer` to backend.d.ts
-3. Update CustomersTab.tsx to add delete button with confirmation dialog
+1. Create `src/frontend/src/components/pos/PrintReceiptModal.tsx` with receipt UI and dual print options
+2. Modify `POSScreen.tsx` to track last order data and open print modal after success

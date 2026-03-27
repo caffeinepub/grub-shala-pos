@@ -33,6 +33,8 @@ import {
   useOutlets,
   usePlaceOrder,
 } from "../../hooks/useQueries";
+import PrintReceiptModal from "./PrintReceiptModal";
+import type { ReceiptData } from "./PrintReceiptModal";
 
 const SKELETON_ITEMS = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -56,6 +58,8 @@ export default function POSScreen({ onGoAdmin }: Props) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [printReceipt, setPrintReceipt] = useState<ReceiptData | null>(null);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const { data: outlets = [], isLoading: outletLoading } = useOutlets();
@@ -166,6 +170,25 @@ export default function POSScreen({ onGoAdmin }: Props) {
         taxAmount,
         total: grandTotal,
       });
+
+      // Capture receipt data before clearing cart
+      setPrintReceipt({
+        outletName: activeOutlet?.name ?? "",
+        customerName: customerName.trim(),
+        customerMobile,
+        items: cart.map((ci) => ({
+          name: ci.menuItem.name,
+          quantity: ci.quantity,
+          unitPrice: ci.menuItem.price,
+        })),
+        subtotal,
+        taxEnabled,
+        taxAmount,
+        total: grandTotal,
+        placedAt: new Date(),
+      });
+      setPrintModalOpen(true);
+
       setOrderSuccess(true);
       setCart([]);
       setCustomerName("");
@@ -693,6 +716,13 @@ export default function POSScreen({ onGoAdmin }: Props) {
           </>
         )}
       </AnimatePresence>
+
+      {/* Print Receipt Modal */}
+      <PrintReceiptModal
+        open={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        receipt={printReceipt}
+      />
     </div>
   );
 }

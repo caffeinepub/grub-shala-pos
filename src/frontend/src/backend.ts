@@ -145,6 +145,7 @@ export interface backendInterface {
     createMenuCategory(outletId: string, name: string): Promise<MenuCategory>;
     createMenuItem(outletId: string, name: string, category: string, price: number, available: boolean): Promise<MenuItem>;
     createOutlet(name: string, active: boolean): Promise<Outlet>;
+    deleteCustomer(mobile: string): Promise<boolean>;
     deleteMenuCategory(id: string): Promise<boolean>;
     deleteMenuItem(id: string): Promise<boolean>;
     deleteOrder(id: string): Promise<boolean>;
@@ -252,6 +253,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.createOutlet(arg0, arg1);
+            return result;
+        }
+    }
+    async deleteCustomer(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteCustomer(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteCustomer(arg0);
             return result;
         }
     }

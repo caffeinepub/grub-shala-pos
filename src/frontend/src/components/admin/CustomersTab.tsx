@@ -19,12 +19,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useQueryClient } from "@tanstack/react-query";
-import { Download, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Download, Loader2, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import type { Customer } from "../../backend";
-import { useActor } from "../../hooks/useActor";
-import { useCustomers } from "../../hooks/useQueries";
+import { useCustomers, useDeleteCustomer } from "../../hooks/useQueries";
 
 const SKELETON_ROWS = [1, 2, 3, 4, 5];
 
@@ -45,19 +43,14 @@ function downloadCSV(customers: Customer[]) {
 
 export default function CustomersTab() {
   const { data: customers = [], isLoading } = useCustomers();
-  const { actor: backend } = useActor();
-  const queryClient = useQueryClient();
-  const [deletingMobile, setDeletingMobile] = useState<string | null>(null);
+  const deleteCustomer = useDeleteCustomer();
 
   async function handleDelete(mobile: string) {
-    if (!backend) return;
-    setDeletingMobile(mobile);
     try {
-      // deleteCustomer exists on the canister but may not be in the typed wrapper
-      await (backend as any).deleteCustomer(mobile);
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
-    } finally {
-      setDeletingMobile(null);
+      await deleteCustomer.mutateAsync(mobile);
+      toast.success("Customer deleted");
+    } catch {
+      toast.error("Failed to delete customer");
     }
   }
 
@@ -136,7 +129,7 @@ export default function CustomersTab() {
                             variant="ghost"
                             size="icon"
                             className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                            disabled={deletingMobile === customer.mobile}
+                            disabled={deleteCustomer.isPending}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -159,8 +152,13 @@ export default function CustomersTab() {
                               data-ocid="customers.confirm_button"
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                               onClick={() => handleDelete(customer.mobile)}
+                              disabled={deleteCustomer.isPending}
                             >
-                              Delete
+                              {deleteCustomer.isPending ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                "Delete"
+                              )}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

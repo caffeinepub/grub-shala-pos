@@ -122,6 +122,20 @@ export function useDeleteOrder() {
   });
 }
 
+export function useDeleteCustomer() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (mobile: string) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.deleteCustomer(mobile);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+    },
+  });
+}
+
 export function useCreateOutlet() {
   const { actor } = useActor();
   const queryClient = useQueryClient();

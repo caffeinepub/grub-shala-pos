@@ -249,7 +249,10 @@ export default function MenuTab() {
                 setFilterCatOutletId(v === "all" ? null : v)
               }
             >
-              <SelectTrigger data-ocid="cat.filter.select" className="w-48">
+              <SelectTrigger
+                data-ocid="cat.filter.select"
+                className="w-full sm:w-48"
+              >
                 <SelectValue placeholder="All Outlets" />
               </SelectTrigger>
               <SelectContent>
@@ -277,7 +280,7 @@ export default function MenuTab() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table data-ocid="cat.table">
+              <Table data-ocid="cat.table" className="min-w-[400px]">
                 <TableHeader>
                   <TableRow className="bg-secondary/50">
                     <TableHead className="text-xs font-semibold uppercase tracking-wide">
@@ -474,7 +477,10 @@ export default function MenuTab() {
               value={filterOutletId ?? "all"}
               onValueChange={(v) => setFilterOutletId(v === "all" ? null : v)}
             >
-              <SelectTrigger data-ocid="menu.filter.select" className="w-48">
+              <SelectTrigger
+                data-ocid="menu.filter.select"
+                className="w-full sm:w-48"
+              >
                 <SelectValue placeholder="All Outlets" />
               </SelectTrigger>
               <SelectContent>
@@ -505,7 +511,7 @@ export default function MenuTab() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <Table data-ocid="menu.table">
+              <Table data-ocid="menu.table" className="min-w-[550px]">
                 <TableHeader>
                   <TableRow className="bg-secondary/50">
                     <TableHead className="text-xs font-semibold uppercase tracking-wide">

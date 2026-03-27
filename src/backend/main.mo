@@ -65,16 +65,20 @@ actor {
   };
 
   // Persistent state
-  var outletEntries : [(Text, Outlet)] = [];
-  var menuCategoryEntries : [(Text, MenuCategory)] = [];
-  var menuItemEntries : [(Text, MenuItem)] = [];
-  var orderEntries : [(Text, Order)] = [];
-  var customerEntries : [(Text, Customer)] = [];
-  var userProfileEntries : [(Principal, UserProfile)] = [];
-  var nextOutletId : Nat = 1;
-  var nextMenuCategoryId : Nat = 1;
-  var nextMenuItemId : Nat = 1;
-  var nextOrderId : Nat = 1;
+  stable var outletEntries : [(Text, Outlet)] = [];
+  stable var menuCategoryEntries : [(Text, MenuCategory)] = [];
+  stable var menuItemEntries : [(Text, MenuItem)] = [];
+  stable var orderEntries : [(Text, Order)] = [];
+  stable var customerEntries : [(Text, Customer)] = [];
+  stable var userProfileEntries : [(Principal, UserProfile)] = [];
+  stable var nextOutletId : Nat = 1;
+  stable var nextMenuCategoryId : Nat = 1;
+  stable var nextMenuItemId : Nat = 1;
+  stable var nextOrderId : Nat = 1;
+
+  // Persistent auth state — saves admin assignment across upgrades
+  stable var stableAdminAssigned : Bool = false;
+  stable var stableUserRoles : [(Principal, { #admin; #user; #guest })] = [];
 
   let outlets = Map.fromIter<Text, Outlet>(outletEntries.values());
   let menuCategories = Map.fromIter<Text, MenuCategory>(menuCategoryEntries.values());
@@ -90,6 +94,9 @@ actor {
     orderEntries := orders.entries().toArray();
     customerEntries := customers.entries().toArray();
     userProfileEntries := userProfiles.entries().toArray();
+    // Save auth state so admin survives upgrades
+    stableAdminAssigned := accessControlState.adminAssigned;
+    stableUserRoles := accessControlState.userRoles.entries().toArray();
   };
 
   system func postupgrade() {
@@ -99,6 +106,14 @@ actor {
     orderEntries := [];
     customerEntries := [];
     userProfileEntries := [];
+    // Restore auth state after upgrade
+    if (stableAdminAssigned) {
+      accessControlState.adminAssigned := true;
+      for ((p, r) in stableUserRoles.vals()) {
+        accessControlState.userRoles.add(p, r);
+      };
+    };
+    stableUserRoles := [];
   };
 
   private func seedDefaultOutlets() {

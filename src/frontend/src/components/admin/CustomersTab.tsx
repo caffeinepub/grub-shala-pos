@@ -56,7 +56,7 @@ export default function CustomersTab() {
 
   return (
     <div data-ocid="customers.section" className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-bold">Customers</h2>
         <Button
           data-ocid="customers.download.button"

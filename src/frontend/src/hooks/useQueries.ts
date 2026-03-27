@@ -7,41 +7,58 @@ import type {
   OrderItem,
   Outlet,
 } from "../backend";
+import { createActorWithConfig } from "../config";
 import { useActor } from "./useActor";
 
+// Always use a fresh anonymous actor for public read queries.
+// These endpoints have no auth requirement, so we never need to wait for
+// the authenticated actor to initialise before fetching.
+async function getAnonymousActor() {
+  return createActorWithConfig();
+}
+
 export function useOutlets() {
-  const { actor, isFetching } = useActor();
   return useQuery<Outlet[]>({
     queryKey: ["outlets"],
     queryFn: async () => {
-      if (!actor) return [];
+      const actor = await getAnonymousActor();
       return actor.getOutlets();
     },
-    enabled: !!actor && !isFetching,
+    staleTime: 0,
+    retry: 5,
+    retryDelay: 2000,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }
 
 export function useMenuCategories(outletId: string | null) {
-  const { actor, isFetching } = useActor();
   return useQuery<MenuCategory[]>({
     queryKey: ["menuCategories", outletId],
     queryFn: async () => {
-      if (!actor) return [];
+      const actor = await getAnonymousActor();
       return actor.getMenuCategories(outletId);
     },
-    enabled: !!actor && !isFetching,
+    staleTime: 0,
+    retry: 5,
+    retryDelay: 2000,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }
 
 export function useMenuItems(outletId: string | null) {
-  const { actor, isFetching } = useActor();
   return useQuery<MenuItem[]>({
     queryKey: ["menuItems", outletId],
     queryFn: async () => {
-      if (!actor) return [];
+      const actor = await getAnonymousActor();
       return actor.getMenuItems(outletId);
     },
-    enabled: !!actor && !isFetching,
+    staleTime: 0,
+    retry: 5,
+    retryDelay: 2000,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }
 

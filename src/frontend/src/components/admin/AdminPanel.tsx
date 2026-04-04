@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Check,
   ChefHat,
+  Copy,
   Key,
   LayoutDashboard,
   Loader2,
@@ -16,6 +18,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useInternetIdentity } from "../../hooks/useInternetIdentity";
 import { useClaimFirstAdmin, useIsAdmin } from "../../hooks/useQueries";
 import AdminsTab from "./AdminsTab";
@@ -30,6 +33,47 @@ interface Props {
   onGoPOS: () => void;
 }
 
+function PrincipalIdCard({ principal }: { principal: string }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(principal).then(() => {
+      setCopied(true);
+      toast.success("Principal ID copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <div className="bg-emerald-950/30 border border-emerald-800/40 rounded-xl p-4 space-y-2 w-full max-w-sm">
+      <p className="text-xs font-semibold text-emerald-300">
+        Your Principal ID
+      </p>
+      <p className="text-[11px] text-muted-foreground">
+        Share this with an existing admin so they can grant you access.
+      </p>
+      <div className="flex items-center gap-2">
+        <code className="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-xs font-mono text-foreground break-all select-all">
+          {principal}
+        </code>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={handleCopy}
+          className="shrink-0 border-emerald-700/50 text-emerald-300 hover:bg-emerald-800/30"
+        >
+          {copied ? (
+            <Check className="w-4 h-4" />
+          ) : (
+            <Copy className="w-4 h-4" />
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPanel({ onGoPOS }: Props) {
   const [activeTab, setActiveTab] = useState<AdminTab>("orders");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -39,6 +83,7 @@ export default function AdminPanel({ onGoPOS }: Props) {
   const claimFirstAdmin = useClaimFirstAdmin();
 
   const isLoggedIn = !!identity;
+  const currentPrincipal = identity?.getPrincipal().toString() ?? "";
 
   const navItems: { id: AdminTab; label: string; icon: React.ReactNode }[] = [
     {
@@ -155,6 +200,7 @@ export default function AdminPanel({ onGoPOS }: Props) {
           <p className="text-muted-foreground text-sm">
             You don&apos;t have admin privileges.
           </p>
+          {currentPrincipal && <PrincipalIdCard principal={currentPrincipal} />}
           <Button variant="outline" onClick={clear}>
             Sign out
           </Button>
@@ -175,6 +221,7 @@ export default function AdminPanel({ onGoPOS }: Props) {
             {claimFirstAdmin.error?.message ??
               "Something went wrong. Please try again."}
           </p>
+          {currentPrincipal && <PrincipalIdCard principal={currentPrincipal} />}
           <div className="flex gap-2">
             <Button
               data-ocid="admin.claim.primary_button"
@@ -208,6 +255,7 @@ export default function AdminPanel({ onGoPOS }: Props) {
             your account.
           </p>
         </div>
+        {currentPrincipal && <PrincipalIdCard principal={currentPrincipal} />}
         <Button
           data-ocid="admin.claim.primary_button"
           onClick={() => claimFirstAdmin.mutate()}

@@ -66,6 +66,9 @@ export interface backendInterface {
     deleteMenuItem(id: string): Promise<boolean>;
     deleteOrder(id: string): Promise<boolean>;
     deleteOutlet(id: string): Promise<boolean>;
+    addAdmin(newAdmin: Principal): Promise<boolean>;
+    getAdmins(): Promise<Array<[Principal, string]>>;
+    removeAdmin(target: Principal): Promise<boolean>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCustomer(mobile: string): Promise<Customer | null>;

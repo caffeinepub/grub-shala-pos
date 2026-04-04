@@ -1,3 +1,4 @@
+import type { Principal } from "@icp-sdk/core/principal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   Customer,
@@ -317,6 +318,53 @@ export function useClaimFirstAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["isAdmin"] });
+    },
+  });
+}
+
+export function useAdmins() {
+  const { actor, isFetching } = useActor();
+  return useQuery<Array<[Principal, string]>>({
+    queryKey: ["admins"],
+    queryFn: async () => {
+      if (!actor) return [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (actor as any).getAdmins() as Promise<Array<[Principal, string]>>;
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useAddAdmin() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (principalId: string) => {
+      if (!actor) throw new Error("Not connected");
+      const { Principal } = await import("@icp-sdk/core/principal");
+      const principal = Principal.fromText(principalId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (actor as any).addAdmin(principal) as Promise<boolean>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admins"] });
+    },
+  });
+}
+
+export function useRemoveAdmin() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (principalId: string) => {
+      if (!actor) throw new Error("Not connected");
+      const { Principal } = await import("@icp-sdk/core/principal");
+      const principal = Principal.fromText(principalId);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (actor as any).removeAdmin(principal) as Promise<boolean>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admins"] });
     },
   });
 }

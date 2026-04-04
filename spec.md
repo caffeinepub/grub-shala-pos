@@ -1,24 +1,37 @@
 # Grub Shala POS
 
 ## Current State
-POSScreen.tsx handles order placement. On success, shows a 3-second success animation then resets. No print functionality exists.
+The app uses Internet Identity (ICP) for admin authentication. There is one admin assigned via the "Claim Admin Access" first-run flow. The backend has `assignCallerUserRole(user: Principal, role: UserRole)` which allows an existing admin to grant any ICP principal admin rights. There is no UI to manage additional admins.
 
 ## Requested Changes (Diff)
 
 ### Add
-- `PrintReceiptModal` component: shows receipt preview with outlet name, customer name/mobile, order items, subtotal, tax, total, and timestamp
-- Print via browser `window.print()` with receipt CSS (works for USB/network thermal printers and regular printers)
-- Print via Web Bluetooth API with ESC/POS commands for Bluetooth thermal printers (58mm/80mm)
-- After successful order placement, show receipt modal with both print options
-- A `usePrintReceipt` hook that encapsulates both print strategies
+- New "Admins" tab in the admin panel sidebar/bottom nav
+- New `AdminsTab` component that:
+  - Lists all current admins (principals with their roles from the backend)
+  - Allows adding a new admin by pasting their ICP Principal ID
+  - Shows the current logged-in user's own Principal ID (so they can share it with others to be added as admin)
+  - Confirmation toast on success/error
+- New backend function `getAdmins()` that returns all principals with admin role
+- New query hook `useAdmins()` and mutation hook `useAddAdmin()`
 
 ### Modify
-- `POSScreen.tsx`: capture last placed order data, show PrintReceiptModal after success
-- `handlePlaceOrder`: store order receipt data on success, open modal
+- `AdminPanel.tsx`: add "Admins" tab to nav items and render `AdminsTab`
+- `main.mo`: add `getAdmins()` function that returns all admin principals
+- `useQueries.ts`: add `useAdmins()` and `useAddAdmin()` hooks
+- `backend.d.ts`: add `getAdmins()` to the interface
 
 ### Remove
-- Nothing removed
+- Nothing
 
 ## Implementation Plan
-1. Create `src/frontend/src/components/pos/PrintReceiptModal.tsx` with receipt UI and dual print options
-2. Modify `POSScreen.tsx` to track last order data and open print modal after success
+1. Add `getAdmins()` to `main.mo` — returns `[(Principal, Text)]` (principal + role text)
+2. Update `backend.d.ts` to expose `getAdmins()`
+3. Create `AdminsTab.tsx` with:
+   - Current user's principal displayed (copyable)
+   - List of current admins
+   - Form to add new admin by Principal ID
+4. Update `useQueries.ts` with `useAdmins()` query and `useAddAdmin()` mutation
+5. Update `AdminPanel.tsx` to include the new tab
+
+**Note on Google email:** ICP uses Principal IDs (not email addresses) for identity. The user wanting to become admin must share their ICP Principal ID with the existing admin. The UI will show the current user's principal prominently to facilitate this workflow.

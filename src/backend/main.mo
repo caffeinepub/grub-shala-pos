@@ -141,6 +141,42 @@ actor {
     true;
   };
 
+  // Admin Management
+  public query ({ caller }) func getAdmins() : async [(Principal, Text)] {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized");
+    };
+    let adminEntries = accessControlState.userRoles.entries().toArray();
+    adminEntries.filter(func(entry) { entry.1 == #admin }).map(func(entry) { (entry.0, "admin") });
+  };
+
+  public shared ({ caller }) func addAdmin(newAdmin : Principal) : async Bool {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can add new admins");
+    };
+    if (newAdmin.isAnonymous()) {
+      Runtime.trap("Cannot make anonymous principal an admin");
+    };
+    accessControlState.userRoles.add(newAdmin, #admin);
+    true;
+  };
+
+  public shared ({ caller }) func removeAdmin(target : Principal) : async Bool {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can remove admins");
+    };
+    if (caller == target) {
+      Runtime.trap("Cannot remove yourself as admin");
+    };
+    switch (accessControlState.userRoles.get(target)) {
+      case (null) { false };
+      case (?_) {
+        accessControlState.userRoles.add(target, #user);
+        true;
+      };
+    };
+  };
+
   // User Profile Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {

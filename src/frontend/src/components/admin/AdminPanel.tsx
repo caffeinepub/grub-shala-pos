@@ -18,12 +18,13 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useInternetIdentity } from "../../hooks/useInternetIdentity";
 import { useClaimFirstAdmin, useIsAdmin } from "../../hooks/useQueries";
+import AdminsTab from "./AdminsTab";
 import CustomersTab from "./CustomersTab";
 import MenuTab from "./MenuTab";
 import OrdersTab from "./OrdersTab";
 import OutletsTab from "./OutletsTab";
 
-type AdminTab = "orders" | "customers" | "outlets" | "menu";
+type AdminTab = "orders" | "customers" | "outlets" | "menu" | "admins";
 
 interface Props {
   onGoPOS: () => void;
@@ -55,6 +56,11 @@ export default function AdminPanel({ onGoPOS }: Props) {
       id: "menu",
       label: "Menu Items",
       icon: <UtensilsCrossed className="w-4 h-4" />,
+    },
+    {
+      id: "admins",
+      label: "Admins",
+      icon: <ShieldCheck className="w-4 h-4" />,
     },
   ];
 
@@ -338,6 +344,7 @@ export default function AdminPanel({ onGoPOS }: Props) {
               {activeTab === "customers" && <CustomersTab />}
               {activeTab === "outlets" && <OutletsTab />}
               {activeTab === "menu" && <MenuTab />}
+              {activeTab === "admins" && <AdminsTab />}
             </motion.div>
           )}
         </main>

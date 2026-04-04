@@ -29,12 +29,6 @@ import { toast } from "sonner";
 import { useInternetIdentity } from "../../hooks/useInternetIdentity";
 import { useAddAdmin, useAdmins, useRemoveAdmin } from "../../hooks/useQueries";
 
-// ICP principal IDs are base32-encoded with dashes, typically 27–63 chars.
-// They must contain at least one dash and only alphanumeric + dash characters.
-function looksLikePrincipal(value: string): boolean {
-  return /^[a-z0-9]{5}(-[a-z0-9]{5})+$/i.test(value.trim());
-}
-
 export default function AdminsTab() {
   const { identity } = useInternetIdentity();
   const currentPrincipal = identity?.getPrincipal().toString() ?? "";
@@ -69,19 +63,21 @@ export default function AdminsTab() {
       toast.error("Please enter a Principal ID");
       return;
     }
-    if (!looksLikePrincipal(trimmed)) {
-      toast.error(
-        "That doesn't look like a valid Principal ID. It should be in the format: xxxxx-xxxxx-xxxxx-... (groups of 5 characters separated by dashes).",
-      );
+    if (trimmed.length < 20) {
+      toast.error("That doesn't look like a valid Principal ID");
       return;
     }
     try {
       await addAdmin.mutateAsync(trimmed);
       setNewPrincipalInput("");
       toast.success("Admin added successfully");
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to add admin";
-      toast.error(msg);
+    } catch (err: any) {
+      const msg = err?.message ?? "Failed to add admin";
+      if (msg.includes("Invalid") || msg.includes("principal")) {
+        toast.error("Invalid Principal ID — check the value and try again");
+      } else {
+        toast.error(msg);
+      }
     }
   }
 
@@ -90,9 +86,8 @@ export default function AdminsTab() {
     try {
       await removeAdmin.mutateAsync(confirmRemove);
       toast.success("Admin removed");
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to remove admin";
-      toast.error(msg);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to remove admin");
     } finally {
       setConfirmRemove(null);
     }
@@ -169,7 +164,7 @@ export default function AdminsTab() {
               <Input
                 id="new-admin-principal"
                 data-ocid="admins.new_admin.input"
-                placeholder="e.g. 6kfru-4aaaa-aaaab-qaama-cai"
+                placeholder="e.g. 6kfru-4aaaa-aaaab-..."
                 value={newPrincipalInput}
                 onChange={(e) => setNewPrincipalInput(e.target.value)}
                 className="font-mono text-sm"

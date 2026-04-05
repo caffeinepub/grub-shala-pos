@@ -114,9 +114,11 @@ actor {
       };
     };
     stableUserRoles := [];
-    // Ensure this principal always has admin access
-    let grantedAdmin = Principal.fromText("pkrwa-mascp-qxyf3-o2cbc-sue3p-tikvn-xxvov-abgvb-76ilk-jbdzd-xae");
-    accessControlState.userRoles.add(grantedAdmin, #admin);
+    // Ensure these principals always have admin access (add overwrites existing role)
+    let grantedAdmin1 = Principal.fromText("pkrwa-mascp-qxyf3-o2cbc-sue3p-tikvn-xxvov-abgvb-76ilk-jbdzd-xae");
+    accessControlState.userRoles.add(grantedAdmin1, #admin);
+    let grantedAdmin2 = Principal.fromText("f227c-njdzq-d7jb2-4odnh-gzd54-zplax-sgwx3-7rdr4-pwjsf-qqryw-eae");
+    accessControlState.userRoles.add(grantedAdmin2, #admin);
     accessControlState.adminAssigned := true;
   };
 

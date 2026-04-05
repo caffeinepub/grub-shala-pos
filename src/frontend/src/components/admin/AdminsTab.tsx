@@ -30,9 +30,9 @@ import { useInternetIdentity } from "../../hooks/useInternetIdentity";
 import { useAddAdmin, useAdmins, useRemoveAdmin } from "../../hooks/useQueries";
 
 // ICP principal IDs are base32-encoded with dashes, typically 27–63 chars.
-// They must contain at least one dash and only alphanumeric + dash characters.
+// Each group can be 1–5 alphanumeric characters (the last group is often shorter).
 function looksLikePrincipal(value: string): boolean {
-  return /^[a-z0-9]{5}(-[a-z0-9]{5})+$/i.test(value.trim());
+  return /^[a-z0-9]{1,5}(-[a-z0-9]{1,5})+$/i.test(value.trim());
 }
 
 export default function AdminsTab() {
@@ -71,7 +71,7 @@ export default function AdminsTab() {
     }
     if (!looksLikePrincipal(trimmed)) {
       toast.error(
-        "That doesn't look like a valid Principal ID. It should be in the format: xxxxx-xxxxx-xxxxx-... (groups of 5 characters separated by dashes).",
+        "That doesn't look like a valid Principal ID. It should be groups of characters separated by dashes, e.g. xxxxx-xxxxx-xxxxx-...-xxx",
       );
       return;
     }

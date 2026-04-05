@@ -8,14 +8,22 @@ import type {
   OrderItem,
   Outlet,
 } from "../backend";
+import type { backendInterface } from "../backend";
 import { createActorWithConfig } from "../config";
 import { useActor } from "./useActor";
 
-// Always use a fresh anonymous actor for public read queries.
-// These endpoints have no auth requirement, so we never need to wait for
-// the authenticated actor to initialise before fetching.
+// Module-level singleton so all anonymous queries share one actor instance.
+// This prevents multiple simultaneous actor creation calls racing each other.
+let _anonymousActorPromise: Promise<backendInterface> | null = null;
 async function getAnonymousActor() {
-  return createActorWithConfig();
+  if (!_anonymousActorPromise) {
+    _anonymousActorPromise = createActorWithConfig().catch((err) => {
+      // Reset so the next call retries from scratch
+      _anonymousActorPromise = null;
+      throw err;
+    });
+  }
+  return _anonymousActorPromise;
 }
 
 // Parses a principal ID string, throwing a human-readable error on failure.
@@ -117,8 +125,10 @@ export function usePlaceOrder() {
       taxAmount: number;
       total: number;
     }) => {
-      if (!actor) throw new Error("Not connected");
-      return actor.placeOrder(
+      // If authenticated actor isn't ready yet, fall back to a fresh anonymous actor
+      // since placeOrder has no auth requirement on the backend
+      const orderActor = actor ?? (await getAnonymousActor());
+      return orderActor.placeOrder(
         params.outletId,
         params.customerMobile,
         params.customerName,

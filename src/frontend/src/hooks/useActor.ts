@@ -16,7 +16,12 @@ export function useActor() {
 
       if (!isAuthenticated) {
         // Return anonymous actor if not authenticated
-        return await createActorWithConfig();
+        try {
+          return await createActorWithConfig();
+        } catch (err) {
+          console.error("[useActor] Failed to create anonymous actor:", err);
+          throw err;
+        }
       }
 
       const actorOptions = {
@@ -25,13 +30,25 @@ export function useActor() {
         },
       };
 
-      const actor = await createActorWithConfig(actorOptions);
-      const adminToken = getSecretParameter("caffeineAdminToken") || "";
-      await actor._initializeAccessControlWithSecret(adminToken);
-      return actor;
+      try {
+        const actor = await createActorWithConfig(actorOptions);
+        const adminToken = getSecretParameter("caffeineAdminToken") || "";
+        await actor._initializeAccessControlWithSecret(adminToken);
+        return actor;
+      } catch (err) {
+        console.error("[useActor] Failed to create authenticated actor:", err);
+        throw err;
+      }
     },
-    // Only refetch when identity changes
-    staleTime: Number.POSITIVE_INFINITY,
+    // Refresh actor periodically so stale/failed actors recover
+    staleTime: 30_000,
+    // Retry transient failures before giving up
+    retry: 3,
+    retryDelay: 1000,
+    // Don't hold stale actor in cache too long
+    gcTime: 60_000,
+    // Don't bubble errors — return null gracefully instead
+    throwOnError: false,
     // This will cause the actor to be recreated when the identity changes
     enabled: true,
   });

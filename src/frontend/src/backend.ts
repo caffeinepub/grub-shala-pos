@@ -150,6 +150,9 @@ export interface backendInterface {
     deleteMenuItem(id: string): Promise<boolean>;
     deleteOrder(id: string): Promise<boolean>;
     deleteOutlet(id: string): Promise<boolean>;
+    addAdmin(newAdmin: Principal): Promise<boolean>;
+    getAdmins(): Promise<Array<[Principal, string]>>;
+    removeAdmin(target: Principal): Promise<boolean>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCustomer(mobile: string): Promise<Customer | null>;
@@ -323,6 +326,48 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.deleteOutlet(arg0);
+            return result;
+        }
+    }
+    async addAdmin(arg0: Principal): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addAdmin(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addAdmin(arg0);
+            return result;
+        }
+    }
+    async getAdmins(): Promise<Array<[Principal, string]>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAdmins();
+                return result as Array<[Principal, string]>;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAdmins();
+            return result as Array<[Principal, string]>;
+        }
+    }
+    async removeAdmin(arg0: Principal): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.removeAdmin(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.removeAdmin(arg0);
             return result;
         }
     }

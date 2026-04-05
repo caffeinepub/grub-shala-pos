@@ -340,8 +340,7 @@ export function useAdmins() {
     queryKey: ["admins"],
     queryFn: async () => {
       if (!actor) return [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (actor as any).getAdmins() as Promise<Array<[Principal, string]>>;
+      return actor.getAdmins();
     },
     enabled: !!actor && !isFetching,
   });
@@ -354,8 +353,7 @@ export function useAddAdmin() {
     mutationFn: async (principalId: string) => {
       if (!actor) throw new Error("Not connected");
       const principal = await parsePrincipal(principalId);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (actor as any).addAdmin(principal) as Promise<boolean>;
+      return actor.addAdmin(principal);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admins"] });
@@ -370,8 +368,7 @@ export function useRemoveAdmin() {
     mutationFn: async (principalId: string) => {
       if (!actor) throw new Error("Not connected");
       const principal = await parsePrincipal(principalId);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (actor as any).removeAdmin(principal) as Promise<boolean>;
+      return actor.removeAdmin(principal);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admins"] });

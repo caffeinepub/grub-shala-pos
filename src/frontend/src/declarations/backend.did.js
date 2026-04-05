@@ -54,6 +54,10 @@ export const Order = IDL.Record({
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'claimFirstAdmin' : IDL.Func([], [IDL.Bool], []),
+  'addAdmin' : IDL.Func([IDL.Principal], [IDL.Bool], []),
+  'getAdmins' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Text))], ['query']),
+  'removeAdmin' : IDL.Func([IDL.Principal], [IDL.Bool], []),
   'createMenuCategory' : IDL.Func([IDL.Text, IDL.Text], [MenuCategory], []),
   'createMenuItem' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Float64, IDL.Bool], [MenuItem], []),
   'createOutlet' : IDL.Func([IDL.Text, IDL.Bool], [Outlet], []),
@@ -131,6 +135,10 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'claimFirstAdmin' : IDL.Func([], [IDL.Bool], []),
+    'addAdmin' : IDL.Func([IDL.Principal], [IDL.Bool], []),
+    'getAdmins' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Text))], ['query']),
+    'removeAdmin' : IDL.Func([IDL.Principal], [IDL.Bool], []),
     'createMenuCategory' : IDL.Func([IDL.Text, IDL.Text], [MenuCategory], []),
     'createMenuItem' : IDL.Func([IDL.Text, IDL.Text, IDL.Text, IDL.Float64, IDL.Bool], [MenuItem], []),
     'createOutlet' : IDL.Func([IDL.Text, IDL.Bool], [Outlet], []),
